@@ -1,45 +1,48 @@
-# code-sample-description
-This sample repo will show you how to easily do X with Nylas.
+# nicegui_planner
+
+This sample will show you to create an a daily planner (Calendar & Email) using NiceGUI.
+
+You can follow along step-by-step in our blog post ["How to build a Daily Planner using NiceGUI"]([https://www.nylas.com/blog/shiny-for-python-building-an-email-dashboard/](https://www.nylas.com/blog/how-to-build-a-daily-planner-using-nicegui/)).
 
 ## Setup
 
 ### System dependencies
 
-- Add System dependencies
+- Python v3.x
 
 ### Gather environment variables
 
-You'll need the following values from the Nylas Dashboard:
+You'll need the following values:
 
 ```text
-ACCESS_TOKEN = ""
 CLIENT_ID = ""
 CLIENT_SECRET = ""
+ACCESS_TOKEN = ""
 ```
 
-Add the above values to a `.env` file.
+Add the above values to a new `.env` file:
 
-The `.env` file is added to `.gitignore`. Ensure to store these values securely.
+```bash
+$ touch .env # Then add your env variables
+```
 
 ### Install dependencies
 
-[replace with install steps]
 ```bash
-$ npm i
+$ pip3 install nicegui # Nylas API SDK
+$ pip3 install python-dotenv # Environment variables
 ```
 
 ## Usage
 
-The recommended way to use this sample is ...
+Run the file **nice_gui_planner.py**:
 
-You can also clone the repository ...
+```bash
+$ python3 nice_gui_planner.py
+```
 
-You'll find more detailed instructions ...
-
-## Get support
-
-If you found a bug or want to suggest a new [feature/use case/sample], please file an issue.
+NiceGUI will open up your browser on port 8080.
 
 ## Learn more
 
-Visit our [Nylas documentation](https://developer.nylas.com/) to learn more.
+Visit our [Nylas Python SDK documentation](https://developer.nylas.com/docs/developer-tools/sdk/python-sdk/) to learn more.
