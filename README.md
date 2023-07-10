@@ -2,7 +2,7 @@
 
 This sample will show you to create an a daily planner (Calendar & Email) using NiceGUI.
 
-You can follow along step-by-step in our blog post ["How to build a Daily Planner using NiceGUI"]([https://www.nylas.com/blog/shiny-for-python-building-an-email-dashboard/](https://www.nylas.com/blog/how-to-build-a-daily-planner-using-nicegui/)).
+You can follow along step-by-step in our blog post ["How to build a Daily Planner using NiceGUI"](https://www.nylas.com/blog/how-to-build-a-daily-planner-using-nicegui/).
 
 ## Setup
 
