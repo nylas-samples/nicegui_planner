@@ -35,7 +35,7 @@ $ pip3 install python-dotenv # Environment variables
 
 ## Usage
 
-Run the file **nice_gui_planner.py**:
+Run the file **nicegui_planner.py**:
 
 ```bash
 $ python3 nicegui_planner.py
