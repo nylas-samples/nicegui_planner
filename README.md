@@ -38,7 +38,7 @@ $ pip3 install python-dotenv # Environment variables
 Run the file **nice_gui_planner.py**:
 
 ```bash
-$ python3 nice_gui_planner.py
+$ python3 nicegui_planner.py
 ```
 
 NiceGUI will open up your browser on port 8080.
