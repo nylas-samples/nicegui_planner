@@ -1,21 +1,21 @@
 # Import your dependencies
 from dotenv import load_dotenv
 import os
-from nylas import APIClient  # type: ignore
 from nicegui import ui
 from datetime import date
 from datetime import datetime
 from dataclasses import dataclass
 from typing import List
+from nylas import Client
+from nylas.models.messages import ListMessagesQueryParams
+import pendulum
 
 # Load your env variables
 load_dotenv()
 
-# Initialize an instance of the Nylas SDK using the client credentials
-nylas = APIClient(
-    os.environ.get("CLIENT_ID"),
-    os.environ.get("CLIENT_SECRET"),
-    os.environ.get("ACCESS_TOKEN"),
+# Initialize Nylas client
+nylas = Client(
+    api_key = os.environ.get("V3_API_KEY")
 )
 
 @dataclass # Class decorator
@@ -41,54 +41,62 @@ def get_events(current_date) -> None:
     # Get today's date as Year, month, day
     today_date = datetime.strptime(current_date, '%Y-%m-%d').date() 
     # Today’s date at 12:00:00 am
-    AFTER = int(datetime(today_date.year, today_date.month, today_date.day, 0, 0, 0).strftime('%s'))
+    AFTER = int(datetime(today_date.year, today_date.month, 
+                         today_date.day, 0, 0, 0).strftime('%s'))
     # Today’s date at 11:59:59 pm 
-    BEFORE = int(datetime(today_date.year, today_date.month,today_date.day, 23, 59, 59).strftime('%s'))
-    # Get all events in the specified range
-    events = nylas.events.where(calendar_id=os.environ.get("CALENDAR_ID"),  starts_after = AFTER, ends_before = BEFORE)
+    BEFORE = int(datetime(today_date.year, today_date.month,
+                            today_date.day, 23, 59, 59).strftime('%s'))
+    query_params = {"calendar_id": os.environ.get("GRANT_ID"), 
+                                "start":  AFTER, "end": BEFORE}
+    events = nylas.events.list(os.environ.get("GRANT_ID"), 
+                                             query_params=query_params).data
     # Auxiliary variables
     event_info = ""
-    counter = 0
     # Loop events
-    for event in events:
-        counter += 1
-        # Does the event have a start and end time?
-        if "start_time" in event.when:
-			# Grab from and end time, as well as the event title
-            event_info = f"From:  {datetime.fromtimestamp(event.when['start_time']).strftime('%H:%M:%S')} \
-                                 To: {datetime.fromtimestamp(event.when['end_time']).strftime('%H:%M:%S')} \
-                                 | {event.title}"
-            add(event_info, "event")
-        # Does the event last all day?    
-        else:
-			# As an all day event, simply grab the title 
-            add(f"All day event | {event.title}")
-    # No events?
-    if counter == 0:
+    if(len(events) > 0):
+        for event in events:
+            match event.when.object:
+                case "timespan":
+                    event_info = f"From:  {datetime.fromtimestamp(event.when.start_time).strftime('%H:%M:%S')} \
+                                     To: {datetime.fromtimestamp(event.when.end_time).strftime('%H:%M:%S')} \
+                                     | {event.title}"
+                    add(event_info, "event")
+                case "datespan":
+                    event_info = f"From:  {datetime.fromtimestamp(event.when.start_date).strftime('%H:%M:%S')} \
+                                     To: {datetime.fromtimestamp(event.when.end_date).strftime('%H:%M:%S')} \
+                                     | {event.title}"
+                    add(event_info, "event")
+                case "date":
+                    event_info = f"On:  {event.when.date} | {event.title}"
+                    add(f"All day event | {event['title']}", "event")			
+    else:
         add("No events today", "event")		
 
 # Get list of emails
-def get_emails(current_date) -> None:
+def get_emails(current_date) -> None:	
     # Get today's date as Year, month, day
     today_date = datetime.strptime(current_date, '%Y-%m-%d').date() 
     # Today’s date at 12:00:00 am
     AFTER = int(datetime(today_date.year, today_date.month, today_date.day, 0, 0, 0).strftime('%s'))
     # Today’s date at 11:59:59 pm 
-    BEFORE = int(datetime(today_date.year, today_date.month,today_date.day, 23, 59, 59).strftime('%s'))	
+    BEFORE = int(datetime(today_date.year, today_date.month,today_date.day, 23, 59, 59).strftime('%s'))	    
+    # Create query parameters
+    query_params = ListMessagesQueryParams(
+        {'in' : "inbox", 'limit': 5, 'unread': True, 'received_after': AFTER, 'received_before': BEFORE}
+    )
     # Get all emails in the specified range
-    messages = nylas.messages.where(in_ = "inbox", unread = "true", limit = 5, received_after = AFTER, received_before = BEFORE)
+    messages, _, _ = nylas.messages.list(os.environ.get("GRANT_ID"), query_params)
     # Auxiliary variables
     email_info = ""
-    counter = 0
-    # Loop emails    
-    for message in messages:
-        counter += 1
-        # Grab the time, who's sending the email and the title of the email
-        email_info = f"Time: {datetime.fromtimestamp(message.date).strftime('%H:%M:%S')} \
-                             | From: {message.from_[0]['name']} | Title: {message.subject}"
-        add(email_info, "email")
+    # Loop emails
+    if(len(messages) > 0):
+        for message in messages:
+            # Grab the time, who's sending the email and the title of the email
+            email_info = f"Time: {pendulum.instance(message.date).strftime('%H:%M:%S')} \
+                                 | From: {message.from_[0].email} | Title: {message.subject}"
+            add(email_info, "email")
     # No emails?
-    if counter == 0:
+    else:
         add("No new emails today", "email")
 
 # Function to add events and emails		
