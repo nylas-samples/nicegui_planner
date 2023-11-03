@@ -15,9 +15,9 @@ You can follow along step-by-step in our blog post ["How to build a Daily Planne
 You'll need the following values:
 
 ```text
-CLIENT_ID = ""
-CLIENT_SECRET = ""
-ACCESS_TOKEN = ""
+V3_TOKEN =
+GRANT_ID =
+V3_HOST = 
 ```
 
 Add the above values to a new `.env` file:
